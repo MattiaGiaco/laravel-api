@@ -1,9 +1,37 @@
 <template>
   <main class="container">
     <h3>I miei Posts</h3>
-    <PostItem />
-    <PostItem />
-    <PostItem />
+
+    <div v-if="posts">
+      <PostItem 
+      v-for="post in posts"
+      :key="post.id"
+      :post= 'post'
+      />
+
+      <button
+        @click="getPosts(pages.current - 1)"
+        :disabled="pages.current === 1"
+      >prev</button>
+
+      <button
+        v-for="page in pages.last"
+        :key="`button${page}`"
+        @click="getPosts(page)"
+        :disabled="pages.current === page"
+      >{{ page }}</button>
+
+      <button
+        @click="getPosts(pages.current + 1)"
+        :disabled="pages.current === pages.last"
+      >next</button>
+    </div>
+
+    <div v-else>
+      <h3>Loading::</h3>
+    </div>
+    
+
   </main>
 </template>
 
@@ -17,17 +45,25 @@ export default {
   },
   data(){
     return{
-      apiUrl: 'http://127.0.0.1:8000/api/posts'
+      apiUrl: 'http://127.0.0.1:8000/api/posts?page=',
+      posts: null,
+      pages: {}
     }
   },
   mounted(){
     this.getPosts();
   },
   methods: {
-    getPosts(){
-      axios.get(this.apiUrl)
+    getPosts(page = 1){
+      this.posts = null;
+      axios.get(this.apiUrl + page)
             .then(res => {
-              console.log(res.data)
+              this.posts = res.data.data;
+              console.log(this.posts);
+              this.pages = {
+                current: res.data.current_page,
+                last: res.data.last_page
+              }
             })
     }
   }

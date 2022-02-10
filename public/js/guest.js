@@ -1949,6 +1949,34 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'Posts',
@@ -1957,7 +1985,9 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      apiUrl: 'http://127.0.0.1:8000/api/posts'
+      apiUrl: 'http://127.0.0.1:8000/api/posts?page=',
+      posts: null,
+      pages: {}
     };
   },
   mounted: function mounted() {
@@ -1965,8 +1995,17 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     getPosts: function getPosts() {
-      axios.get(this.apiUrl).then(function (res) {
-        console.log(res.data);
+      var _this = this;
+
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      this.posts = null;
+      axios.get(this.apiUrl + page).then(function (res) {
+        _this.posts = res.data.data;
+        console.log(_this.posts);
+        _this.pages = {
+          current: res.data.current_page,
+          last: res.data.last_page
+        };
       });
     }
   }
@@ -2018,8 +2057,31 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'PostItem'
+  name: 'PostItem',
+  props: {
+    'post': Object
+  },
+  computed: {
+    formatDate: function formatDate() {
+      var d = new Date(this.post.created_at);
+      var day = d.getDate();
+      var month = d.getMonth() + 1;
+      var year = d.getFullYear();
+      if (day < 10) day = '0' + day;
+      if (month < 10) month = '0' + month;
+      return "".concat(day, " / ").concat(month, " / ").concat(year);
+    }
+  }
 });
 
 /***/ }),
@@ -2074,7 +2136,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "article[data-v-49c43f95] {\n  margin-bottom: 30px;\n}", ""]);
+exports.push([module.i, "article[data-v-49c43f95] {\n  margin-bottom: 30px;\n}\narticle a[data-v-49c43f95] {\n  text-decoration: none;\n  color: black;\n}\narticle a[data-v-49c43f95]:hover {\n  color: blue;\n}\narticle .date[data-v-49c43f95] {\n  margin: 5px 0;\n  font-size: 12px;\n}", ""]);
 
 // exports
 
@@ -3274,20 +3336,63 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "main",
-    { staticClass: "container" },
-    [
-      _c("h3", [_vm._v("I miei Posts")]),
-      _vm._v(" "),
-      _c("PostItem"),
-      _vm._v(" "),
-      _c("PostItem"),
-      _vm._v(" "),
-      _c("PostItem"),
-    ],
-    1
-  )
+  return _c("main", { staticClass: "container" }, [
+    _c("h3", [_vm._v("I miei Posts")]),
+    _vm._v(" "),
+    _vm.posts
+      ? _c(
+          "div",
+          [
+            _vm._l(_vm.posts, function (post) {
+              return _c("PostItem", { key: post.id, attrs: { post: post } })
+            }),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                attrs: { disabled: _vm.pages.current === 1 },
+                on: {
+                  click: function ($event) {
+                    return _vm.getPosts(_vm.pages.current - 1)
+                  },
+                },
+              },
+              [_vm._v("prev")]
+            ),
+            _vm._v(" "),
+            _vm._l(_vm.pages.last, function (page) {
+              return _c(
+                "button",
+                {
+                  key: "button" + page,
+                  attrs: { disabled: _vm.pages.current === page },
+                  on: {
+                    click: function ($event) {
+                      return _vm.getPosts(page)
+                    },
+                  },
+                },
+                [_vm._v(_vm._s(page))]
+              )
+            }),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                attrs: { disabled: _vm.pages.current === _vm.pages.last },
+                on: {
+                  click: function ($event) {
+                    return _vm.getPosts(_vm.pages.current + 1)
+                  },
+                },
+              },
+              [_vm._v("next")]
+            ),
+          ],
+          2
+        )
+      : _c("div", [_c("h3", [_vm._v("Loading::")])]),
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -3324,9 +3429,7 @@ var staticRenderFns = [
           _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("home")])]),
           _vm._v(" "),
           _c("li", [
-            _c("a", { staticClass: "active", attrs: { href: "#" } }, [
-              _vm._v("blog"),
-            ]),
+            _c("a", { attrs: { active: "", href: "#" } }, [_vm._v("blog")]),
           ]),
           _vm._v(" "),
           _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("chi siamo")])]),
@@ -3358,24 +3461,35 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("article", [
+    _c("h4", [
+      _c("a", { attrs: { href: "#" } }, [_vm._v(_vm._s(_vm.post.title))]),
+    ]),
+    _vm._v(" "),
+    _vm.post.category
+      ? _c("h6", { staticClass: "category" }, [
+          _vm._v(_vm._s(_vm.post.category.name)),
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.post.tags
+      ? _c(
+          "div",
+          _vm._l(_vm.post.tags, function (tag, index) {
+            return _c("span", { key: "tag" + index, staticClass: "tags" }, [
+              _vm._v(_vm._s(tag.name)),
+            ])
+          }),
+          0
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _c("p", { staticClass: "date" }, [_vm._v(_vm._s(_vm.formatDate))]),
+    _vm._v(" "),
+    _c("p", [_vm._v(_vm._s(_vm.post.content))]),
+  ])
 }
-var staticRenderFns = [
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("article", [
-      _c("h4", [_c("a", { attrs: { href: "#" } }, [_vm._v("Titolo")])]),
-      _vm._v(" "),
-      _c("p", [
-        _vm._v(
-          "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ut nobis aspernatur necessitatibus iure nesciunt ipsam possimus eum repudiandae pariatur blanditiis, deserunt provident iste natus eaque itaque similique? At, itaque rem."
-        ),
-      ]),
-    ])
-  },
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

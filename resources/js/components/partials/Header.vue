@@ -3,7 +3,7 @@
     <nav class="container"> 
       <ul>
         <li><a href="#">home</a></li>
-        <li><a class="active" href="#">blog</a></li>
+        <li><a active href="#">blog</a></li>
         <li><a href="#">chi siamo</a></li>
         <li><a href="#">contatti</a></li>
       </ul>
